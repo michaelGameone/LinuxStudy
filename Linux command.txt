@@ -59,6 +59,22 @@ mv ./../abc .
 It will move the file originally located in relative path "./../abc" where "." means current directory and ".." means parent directory to
 the new directory "." which mean the current directory where the command is typed "i.e. the "ChildFolder".
 
+|__ Rename a existing file:
+    |__ mv existingFileName newFileName
+
+
+(2) cp
+|__ example 1: cp existingFile newFile
+|__ example 2: cp existingFile AnOtherDirecoty
+|__ example 2: cp -R existingDirectory newDirectory
+
+
+(3) rm
+|__ example 1: rm delFileName    
+
+(4) mkdir
+
+(5) rmdir or rm -r
 
 
 
@@ -220,6 +236,7 @@ Recursive change:
 |__ -R
 
 chown newOwnerName fileName
+chown newUserOwner:newGroupOwner fileName
 chgrp newGroupName fileName
 
 The permission of the directory will override all the files and directories nested inside it.
@@ -253,4 +270,363 @@ remove all entries
 
 command: getfacl
 |__ syntax: getfacl [file name]
+
+
+==========================================
+$                                        $
+$       (F) Input and Output             $
+$                                        $ 
+==========================================
+In linux, everything (including devices, drive) is file
+Therefore, standard input is a file with file descriptor = 0
+Standard output is a file with file descriptor = 1
+Standard error is a file with file descriptor = 2
+
+Default output of command is 1
+
+Example: feeding the input into the cmd "mail"
+
+(1) redirect input from a file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mail -s "mail title" targetEmail@address.com < letterContent
+
+
+(2) direct error output to a file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ls -l /root 2> errorFile
+telnet localhost 2> errorfile
+
+(3) Add text to files
+~~~~~~~~~~~~~~~~~~~~~~~~~            
+(a) vi
+(b) > or >> (redirect output to a file)
+(c) echo > or >>
+
+
+(i) echo
+|__ create file with text already
+example: echo "some text here" > newFileName
+
+(ii) append some text to existing file
+example: echo "some more text here" >> existingFileName
+
+(iii) > or >> (redirect output to a file)
+|__ you can direct any text output of any linux command (e.g. ls) to a file
+
+example: ls -l > fileName
+
+you can mixed "<" and ">"/">>" executed from left to right
+example:
+cat < file1 >> file2
+|__ it will append file1 content to file2
+
+
+(4) counting words in text file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(a) wc -c fileName
+
+
+(5) tee command
+~~~~~~~~~~~~~~~~~~~~~~~~~ 
+tee command can store and view the output at the same time
+example:
+echo "some text" | tee newFileName
+
+if append text to existing file
+echo "more text" | tee -a existingFileName
+
+
+(6) PIPES "|"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+==> connect the ouput from first command to the input of the second command
+
+example:
+ls -ltr | more
+
+
+(7) Cat
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+(8) more
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+display one page at a time when press the spacebar
+
+cat fileName | more
+Or
+more fileName
+
+
+(9) less
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+display one page ==> space bar
+display one line down ==> j/down arrow
+display one line up ==> k/up arrow
+
+cat fileName | less
+Or
+less fileName
+
+
+(10) head
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+display first N lines of the file ==> head -N fileName
+
+e.g. head -2 fileName
+     |__ display first 2 lines of the file
+
+
+
+(11) tail
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+display last N Lines of the file ==> tail -N fileName
+
+e.g. tail -2 fileName
+     |__ display last 2 lines of the file
+	 
+	 
+(12) cut
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Suppose there is a csv like the following:
+
+OrderID,CustomerID,ProductID,Qty,Date
+1,3,5,1,2023-8-3
+2,3,8,10,2024-3-1
+3,2,11,3,2024-3-2
+
+cut -d, -f 3 csvFileName 
+|__ the following is the output:
+ProductID
+5
+8
+11
+
+- syntax: cut -d[delimiter character] -f [which column(s) after delimited] [csv file name]
+
+example
+cut -d, -f 2-5 csvFileName 
+|__ the following is the output:
+
+CustomerID,ProductID,Qty,Date
+3,5,1,2023-8-3
+3,8,10,2024-3-1
+2,11,3,2024-3-2
+
+
+
+example
+cut -d, -f 2,5 csvFileName 
+|__ the following is the output:
+CustomerID,Date
+3,2023-8-3
+3,2024-3-1
+2,2024-3-2
+
+
+It can be used for getting the piped data
+
+example
+ls -l | cut -c2-4
+
+
+
+(13) awk
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Suppose a table like below
+
+Date forecast temp
+2023-3-8 sunny  23
+2023-3-9 rainny 21
+2023-3-10 cloudy 20
+
+awk '{print $1}' tableFileName
+|__ the following is the output
+Date
+2023-3-8
+2023-3-9
+2023-3-10
+
+awk '{print $1, $3}' tableFileName
+|__ the following is the output
+Date temp
+2023-3-8 23
+2023-3-9 21
+2023-3-10 20
+
+awk '{print $NF}' tableFileName
+|__ the following is the output
+temp
+23
+21
+20
+
+
+It also can use the piped data:
+///////////////////////////////////
+ls -l | awk '{print $9}'
+
+
+Find all the lines contain specific words:
+
+Suppose there is conversation with the following content
+`````````````````````````````````````````````````````````
+hello John
+Very nice to meet you!
+How are you doing John?
+I hope you are fine.
+Bye John
+
+Let's find all sentence including the word "John"
+==> awk '/John/ {print}' conversationFile
+|__ the following is the output:
+hello John
+How are you doing John?
+Bye John
+
+awk can also used to extract columns of CSV
+==> awk -F, '{print $1}' csvFileName
+OrderID
+1
+2
+3
+
+syntax: awk -F[delimiter] '{print $[column no]' [csv file name]
+
+
+Replace certain column name with the new one:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+echo "hello john" | awk '{$2="Adam"; print $0}'
+==> hello Adam
+
+echo "hello john" | awk '{$2="Adam"; print $1}'
+==> hello
+
+echo "hello john" | awk '{$2="Adam"; print $2}'
+==> Adam
+
+
+example 2:
+cat fileName | awk '$2="snowy"; print $0}'
+
+output:
+Date snowy temp
+2023-3-8 snowy 23
+2023-3-9 snowy 21
+2023-3-10 snowy 20
+
+Find the row with matching column value
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Suppose a table like below
+
+Date forecast temp
+2023-3-8 sunny  23
+2023-3-9 rainny 21
+2023-3-10 cloudy 20
+
+how find all the rainny day
+|__ awk '{if($2 == "rainny") print $0;}' tableFileName
+
+output:
+2023-3-9 rainny 21
+
+Count how many columns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ls -la | awk '{print NF}'
+
+
+
+
+(14) grep and egrep
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(1) find all the lines with the matching keywords
+syntax: grep keyword fileName
+
+example 1:
+grep John conversation
+
+Output:
+hello John
+How are you doing John?
+Bye John
+
+example 2:
+grep -c John conversation
+|__ return how many lines matching the keyword
+
+Output:
+3
+
+example 3:
+grep -i jOHn conversation
+|__ return how many lines matching the keyword (case insensitive)
+
+
+example 4:
+grep -n John conversation
+|__ return line number and the matching lines 
+
+example 5:
+grep -v John conversation
+|__ return line NOT matching the condition
+
+example 6:
+egrep -i "Hello|Bye|" converstion
+|__ return line matching one of the keywords in the set
+
+
+
+
+(15) sort
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sort the lines in the file in the alphabetical/numerical order
+
+syntax 1: sort filename
+        |__ sort in ascending order
+		
+syntax 2: sort -r filename
+        |__ sort in descending order
+		
+example 1: egrep -ni "hello|bye" conversation | sort -r
+
+output:
+5:Bye John
+1:hello John
+
+example 2: ls -la | sort
+example 3: ls -la | sort -k9
+           |__ sorting the files listing information for the colume 9 (i.e. the file/direcotry name)
+		  
+
+(16) uniq
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+syntax: sort filename | uniq
+        |__ elimate the duplicated lines
+		
+
+
+(17) wc
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+syntax: wc fileName
+
+
+(10) Compare files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+diff file1 file2
+|__ output the lines that are different
+
+cmp file1 file2
+|__ output the line number that are different
+
+
+(11) Compress and Uncompress file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+==========================================
+$                                        $
+$       (G) date time                    $
+$                                        $ 
+==========================================
+(1) command: date
 
