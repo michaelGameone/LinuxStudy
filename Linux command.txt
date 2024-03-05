@@ -1,0 +1,256 @@
+==========================================
+$                                        $
+$     (A) Finding Files or Directories   $
+$                                        $ 
+==========================================
+
+(1) Find
+|__ It is a command for search the location of certain files and directories
+|__ syntax: find [the location of the directory where the search starts (relative or absolute path)] -name [name list of files/directories]
+
+example 1:
+find . -name "abc.txt"
+where the search start from the current directory (i.e. ".") and the target file name is "abc.txt"  
+
+example 2:
+find / -name "abc.txt" 
+It will search the file starting from the root directory "/"
+
+(2) Locate
+* need to install "mlocate" before using this command:
+(1) apt install mlocate
+OR
+(2a) rpm -qa | grep mlocate
+(2b) yum install mlocate
+
+Also, if "locate" command does not output any results, then as root run "updatedb"
+
+|__ it use a "DB" to store the file location information in a "DB" or cache.
+|__ therefore, it runs faster than "Find" command, but may not be updated with "DB". Therefore, need to 
+    run "updatedb"
+|__ syntax: locate [name file]
+
+example:
+locate abc.txt
+==> it will search the whole machine for the target file named "abc.txt"
+
+
+
+
+
+
+
+=========================================================
+$                                                       $ 
+$ (B) Create, Delete, Copy and Move files/directories   $ 
+$                                                       $ 
+=========================================================
+
+(1) mv
+|__ it is a command for moving file(s)/directory(ies) to new location
+|__ syntax: mv [files list/directories list (in the current directory or relative path/absolute path)] [destination (relative path/absolute path]
+
+Example:
+Suppose there is a file called "abc" inside "ParentFolder" folder.
+And there is a sub-folder called "ChildFolder" nested inside "ParentFolder"
+Inside the "ChildFolder, type the following:
+mv ./../abc .
+
+It will move the file originally located in relative path "./../abc" where "." means current directory and ".." means parent directory to
+the new directory "." which mean the current directory where the command is typed "i.e. the "ChildFolder".
+
+
+
+
+==========================================
+$                                        $
+$            (C) Wild Card               $
+$                                        $ 
+==========================================
+
+WildCard placeholder
+(1) * : this represent a zero, one or more than one character(s)
+(2) ? : represent a single character
+(3) {} : represent a range of characters
+(4) [] : represent a single character from a set of characters inside the bracket []
+(5) \ : as an escape character
+(6) ^ : the beginning of the line
+(7) $ : the end of the line
+
+Example 1:
+(1) create some files first as follows:
+touch abc abc1 abcd ab abc.con
+
+(2) Delete all files starting with "abc"
+rm abc*
+
+(3) the result is only the following file left:
+ab
+
+Example 2:
+touch abc{d..f}{1..2}
+
+The result is 6 files are created as follows:
+abcd1 abcd2 abce1 abce2 abcf1 abcf2
+
+
+Example 3:
+ls -l *.txt
+It will list out all the text files
+
+Example 4:
+(1) create some files as follows:
+touch abccd abcd abc ab
+==> files created: abccd abcd abc ab
+
+(2) 
+command 1: ls -l ab?d
+it will only list out the following files:
+abcd
+
+command 2: ls -l ab?
+abc
+
+Example 5:
+(1) create the belows files
+file1 file2 file12
+
+(2) ls -l *[12]
+==> file1 file2 file12
+
+(3) ls -l *[1]
+==> file1 
+
+(4) ls -l *[2]
+==> file2 file12
+
+==========================================
+$                                        $
+$       (D) Soft and Hard Link           $
+$                                        $ 
+==========================================
+Suppose there is a file called "originalFile" inside "ParentFolder"
+And there is sub-folder called "ChildFolder" nested inside "ParentFolder"
+Inside the "ChildFolder", create the soft link and hard link as follows:
+
+ln -s ./../originalFile softLinkHere
+ln ./../originalFile hardLinkHere
+
+after you create the link, u will see "softLinkHere" has the properties starting with letter "l" to represent it is a soft link
+On the other hand, u will see "hardLinkHere" has the properties starting with "-" ti represen it is a file, but with pointer count(inode) = 2 to 
+indicate that there is 2 files pointing to one actual file location with the same inode (you can type "ls -li" to list out the inode number. They should be the same)
+
+
+if you change one of the 3 files (namely, originalFile, softLinkHere or hardLinkHere), all 3 files will change
+
+But if you remove the original file (i.e.originalFile), the "softLinkHere" becomes invalid but "hardLinkHere" still here but with file pointer count reduce to 1
+
+==========================================
+$                                        $
+$       (E) File permission              $
+$                                        $ 
+==========================================
+(1) Ownership of the file
+User ==> the use who create the file
+Group ==> the group that the user (who in turn create the file) belongs to
+
+
+(2) Change file permission
+
+command: chmod
+
+Example 1: 
+==> discard "read" permission for group user:
+chmod g-r fileName
+
+Example 2: 
+==> add "read" permission for group user:
+chmod g+r fileName
+
+
+
+Example 2: 
+==> add "read" permission for group user:
+chmod g+r fileName
+
+
+Example 3: 
+==> remove "read" permission for ALL user:
+chmod a-r fileName
+
+
+Example 4: 
+==> remove "read" permission for you:
+chmod u-r fileName
+
+
+Example 5: 
+==> remove "read" permission for others user (i.e. except you and group):
+chmod o-r fileName
+
+
+Example 6:
+==> remove access right to directory for others user
+chmod o-x directoryName
+
+Using the number to assign right
+- 0: no permission
+- 1: execute
+- 2: write
+- 3: execute and write
+- 4: read
+- 5: read and execute
+- 6: read and write
+- 7: read and write and execute
+
+example:
+chmod 764 fileName
+==> it will end ups property "-rwxrw-r--"
+
+
+(3) Change ownership
+
+command: chown
+|__ changes user ownership of a file
+
+command: chgrp
+|__ changes group ownership
+
+Recursive change:
+|__ -R
+
+chown newOwnerName fileName
+chgrp newGroupName fileName
+
+The permission of the directory will override all the files and directories nested inside it.
+
+
+
+(4) Access Control List (ACL)
+* may need to install acl first with the following command:
+apt install acl
+
+
+
+command: setfacl
+add perssion for a specific user
+|__ syntax: setfact -m u:[use name]:[access right: rwx] [path of the target file]
+
+add permission for a group
+|__ syntax: setfacl -m g:[group name]:[access right: rwx] [path of the target file]
+
+allow all files or directories to inherit ACL entries from the directory it is within
+|__ syntax: setfacl -Rm "entry" [path of the target directory]
+
+
+remove entry
+|__ syntax: setfacl -x u:[user name] [path of the target file]
+
+
+remove all entries
+|__ syntax: setfacl -b [path of the target file]
+
+
+command: getfacl
+|__ syntax: getfacl [file name]
+
