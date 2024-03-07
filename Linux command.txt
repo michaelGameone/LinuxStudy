@@ -630,3 +630,91 @@ $                                        $
 ==========================================
 (1) command: date
 
+
+==========================================
+$                                        $
+$  (H) Compress an Uncompress file       $
+$                                        $ 
+==========================================
+(1) tar
+Compression:
+|__ syntax: tar cvf [final tar file name] [source files+directories path]
+
+Uncompression:
+|__ synctax: tar xvf [tar file name]
+
+compress example:
+tar cvf everything.tar .
+
+uncompress example:
+tar xvf everything.tar
+
+
+(2) gzip -d OR gunzip
+Compression:
+|__ syntax: gzip [target file(s)]
+
+example: gzip someFile
+
+Uncompression:
+|__ syntax: gunzip [target file(s)]
+
+==========================================
+$                                        $
+$  (I) Vi and Vim Editor                 $
+$                                        $ 
+==========================================
+Mode:
+Insert Mode (I)
+|__ after the insert mode: you can freely type any text you want to the file
+|__ press "Ecape" to exit the insert mode
+
+Command Mode
+|__ press "shift"+"Z" +"Z" to save and exit the vi
+|__ type :qw! to save and exit the vi
+|__ in command mode, you can do the following:
+    |__ type dd to remove the whole line
+    |__ type U to undo
+	|__ type x to delete one character at a time
+	|__ type O to insert a new line
+	|__ type /[the search word]
+	|__ :q! ==> quit without saving
+	
+https://www.openvim.com/
+
+https://vim-adventures.com/
+
+
+==========================================
+$                                        $
+$  (J) Text Replacement                  $
+$                                        $ 
+==========================================
+
+Command: Sed
+|_ syntax: sed 's/[target wordling]/[replacement wording]/g'[name of the target file]
+|__ output: only change on the screen output, not the file
+
+|_ syntax: sed -i 's/[target wordling]/[replacement wording]/g'[name of the target file]
+|__ output: change to the file
+
+
+remove the word
+|_ syntax: sed 's/[target wordling]//g'[name of the target file]
+
+delete the line containing specific words
+|__ syntax: sed '/[target wording]/d' [target file]
+
+delete the empty line containing specific words
+|__ syntax: sed '/^$/d" [target file]
+
+
+
+
+
+
+
+
+
+
+

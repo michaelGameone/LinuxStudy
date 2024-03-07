@@ -1,0 +1,84 @@
+(A) Concept
+
+Packet Structure (TCP/IP)
+|__ https://www.baeldung.com/cs/tcp-max-packet-size
+|__ https://www.baeldung.com/cs/messages-payload-header-overhead
+|__ https://www.baeldung.com/cs/osi-transport-vs-networking-layer
+
+
+(a) Packet structure of "Application Layer"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(1) Packet Length  
+(2) Padding amount
+(3) Payload
+(4) Message authenication code
+
+layer (2) and (3) are encrpted
+
+(b) private key and public key
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(1) private key can generate the public key, but not vice versa
+
+
+(SSH Authenication: Client create both private key and public key, and send out public key to server )
+#################################################################################################
+(2) client send out the public key to server
+    |__ the public key can intercept by hacker or anyonelese.
+	
+(3) server got the public key from client, and then generate a random string, encrpt it with the client's public key
+    And then send the encrpted message back to client
+	|__ again, it can be intercepted by any hacker, but they can't decrpt it because they don't have the private key
+	
+(4) Client receive the the encripted string, decripted it, and based on the descripted string doing some calculation to prove it did decriped it, 
+    and send the answer back to the server
+	
+	
+(5) Server can verify if the client really has the right private key for the given corresponding public key.
+
+
+===========================================================================================================================================
+$									////////////////////				 																  $	
+$		      							   Important		                                                                              $
+$									////////////////////				                                                                  $
+$             																															  $
+$		Symmetric keys are used by SSH in order to encrypt the entire connection.                                                         $
+$ 		Contrary to what some users assume, public/private asymmetrical key pairs that can be created are only used for authentication,   $ 
+$ not encrypting the connection. 																										  $
+$ 		The symmetrical encryption allows even password authentication to be protected against snooping.                                  $
+$																																		  $
+$  	source: https://www.digitalocean.com/community/tutorials/understanding-the-ssh-encryption-and-connection-process					  $																												  $
+$ 																																		  $		
+===========================================================================================================================================
+
+Stage 0 (Prior to the stage of key exchange)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In this stage, both parties produce temporary asymmetric key pairs and exchange the public key in order to produce the shared secret that will be used for symmetrical encryption.
+
+
+Stage 1 (Key exhange)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This key exchange results in the server and client both arriving at the same symmetric key independently by sharing certain pieces of public data and manipulating them with certain secret data.
+The symmetrical encryption key created by this procedure is session-based and constitutes the actual encryption for the data sent between server and client. Once this is established, the rest of the data must be encrypted with this shared secret. This is done prior to authenticating a client.
+
+
+
+Stage 2 (Authenication)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The client creates a key pair and then uploads the public key to any remote server it wishes to access. 
+This is placed in a file called "authorized_keys" within the ~/.ssh directory in the user account’s home directory on the remote server.
+
+
+source: https://www.digitalocean.com/community/tutorials/understanding-the-ssh-encryption-and-connection-process
+
+https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server
+
+
+
+
+
+
+
+
+
+
+
