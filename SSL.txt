@@ -1,0 +1,116 @@
+source: https://www.cloudflare.com/learning/ssl/how-does-ssl-work/
+        https://www.digicert.com/what-is-an-ssl-certificate
+		
+		
+
+(A) Concept
+SSL is also known as TLS
+
+- Secure communication begins with a TLS handshake, in which the two communicating parties open a secure connection and exchange the public key
+- During the TLS handshake, the two parties generate session keys, and the session keys encrypt and decrypt all communications after the TLS handshake
+- Different session keys are used to encrypt communications in each new session
+- TLS ensures that the party on the server side, or the website the user is interacting with, is actually who they claim to be
+- TLS also ensures that data has not been altered, since a message authentication code (MAC) is included with transmissions
+
+TLS handshake
+|__ source: https://www.cloudflare.com/learning/ssl/what-happens-in-a-tls-handshake/
+
+
+- The most important part of an SSL certificate is that it is digitally signed by a trusted CA, like DigiCert. Anyone can create a certificate, but browsers only trust certificates that come from an organization on their list of trusted CAs. Browsers come with a pre-installed list of trusted CAs, known as the Trusted Root CA store. In order to be added to the Trusted Root CA store and thus become a Certificate Authority, a company must comply with and be audited against security and authentication standards established by the browsers.
+
+
+(B) SSL certicate level
+https://www.kaspersky.com/resource-center/definitions/what-is-a-ssl-certificate
+
+1. Extended Validation certificates (EV SSL)
+2. Organization Validated certificates (OV SSL)
+3. Domain Validated certificates (DV SSL)
+4. Wildcard SSL certificates
+5. Multi-Domain SSL certificates (MDC)
+6. Unified Communications Certificates (UCC)
+
+
+(C) Chain of Trust
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When a device validates a certificate, it compares the certificate issuer with the list of trusted CAs. If a match isn’t found, the client checks to see if the certificate of the issuing CA was issued by a trusted CA, and continues until the end of the certificate chain. The top of the chain, the root certificate, must be issued by a trusted Certificate Authority.
+
+|__ source: https://support.dnsimple.com/articles/what-is-ssl-root-certificate/
+
+
+
+(D) How are SSL Certifications verified
+|__ source: https://stackoverflow.com/questions/188266/how-are-ssl-certificates-verified
+
+
+1) Your web browser downloads the web server's certificate, which contains the public key of the web server. This certificate is signed with the private key of a trusted certificate authority.
+
+2) Your web browser comes installed with the public keys of all of the major certificate authorities. It uses this public key to verify that the web server's certificate was indeed signed by the trusted certificate authority.
+
+3) The certificate contains the domain name and/or ip address of the web server. Your web browser confirms with the certificate authority that the address listed in the certificate is the one to which it has an open connection.
+
+4) Browser and server calculate a shared symmetric key which is used for the actual data encryption. Since the server identity is verified the client can be sure, that this "key exchange" is done with the right server and not some man in the middle attacker.
+
+
+(E) Digital Signature
+|__ source: https://www.docusign.com/how-it-works/electronic-signature/digital-signature/digital-signature-faq
+
+Part I: Prepare the signature
+(1) There is a document originated from a company or individual need to be "signed".
+(2) The document is hashed. Although the hash code can't be reversely converted back to the document, but the hash code guarantee that only this unique document
+    can produce this unqiue hash code. There is no other document in the world except this document can produce exactly the same hash code.
+(3) Here comes the "signing" part. This hash code is sent to a third party authority (CA). This CA will use its private key (the private key need to keep in absolute secret)
+    to encrpt the hash code. 
+(4) The encrypted hash code only can be decryped by the public key from CA which is publicly avaliable to all people.
+(5) The encrypted hash code now is the signature of the corresponding document.
+
+Once the document is "signed", any tampering of the original document can be detected. Below is how to detect the tempering.
+
+Part II: Verify the integrity of the document
+(1) Use the public key of the CA to decrypt the hash code (the signature). 
+    If the decryption fails, it immediately invalidate the document.
+	But even decryption succeeds, it only proves that there is some hash code being encrypted by the CA's private key before.
+	
+(2) Try to hash the provided document by the verifier into a hash code. If the hash code is the same as the one being decryped by CA public keys, it means:
+    (i) The given document is indeed equivalent to the decrpted hash code. That's mean the document content is not tampered for the given decryped hash code.
+	(ii) the hash code is proved to be being encrpted once by the CA.
+	(iii) Conclusion: the document did indeed was signed by the CA in the past and it is the exactly the same one signed by the CA as the one
+          read by the verifer.
+
+
+(F) The workflow of generating the Cert and the key
+|__ source 1: https://www.baeldung.com/linux/crt-key-files
+|__ source 2: https://devopscube.com/create-self-signed-certificates-openssl/
+|__ source 3: https://en.wikipedia.org/wiki/X.509#Certificate_filename_extensions
+
+
+The ssl info on the Server side:
+(1) The signed SSL certifcate which has the following info:
+    (i) the domain name, ip, CA info
+	(ii) the public key that is used by the client to encrypt the message sent to the server.
+    (iii) the signature (encrypted hash code)
+(2) the private key corresponding to the public key embeded in the certificate. It is used to decrypt the message coming from broswer. 	
+	
+
+The conceptial process of SSL communication:
+(Step 1) browser initiate the connection to a webserver to request a ssl connection.
+(Step 2) server send back the certicate to the browser
+(Step 3) browser uses one of the build-in CA's public key to verify the certicate (see "Part II: Verify the integrity of the document" above)
+         And then verify weather if the domain name or IP on the certicate is the same domain name or IP that the browser is currently connecting to.
+(Step 4) if Step 3 is verfiied, then generate the following:
+         (i) the sysmetric key for both encrpt and decrpting the message		 
+		 Then uses the server's public key to encrpt the client's sysmetric key and sent it to the server.
+(Step 5) server got the sysnetric key, then use it to secure the communication
+
+More on the TLS "handshake"
+|__ source: https://www.cloudflare.com/learning/ssl/what-happens-in-a-tls-handshake/
+
+
+(G) How to generate cert and private key
+
+https://serverfault.com/questions/224122/what-is-crt-and-key-files-and-how-to-generate-them
+
+how to self-signed cert
+https://gist.github.com/taoyuan/39d9bc24bafc8cc45663683eae36eb1a
+https://www.ibm.com/docs/en/api-connect/2018.x?topic=overview-generating-self-signed-certificate-using-openssl
+https://devopscube.com/create-self-signed-certificates-openssl/
+

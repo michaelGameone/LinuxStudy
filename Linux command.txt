@@ -709,6 +709,13 @@ delete the empty line containing specific words
 |__ syntax: sed '/^$/d" [target file]
 
 
+==========================================
+$                                        $
+$       (K) User Management              $
+$                                        $ 
+==========================================
+
+
 
 
 
