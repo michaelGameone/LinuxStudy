@@ -824,6 +824,11 @@ syntax: usermod -G [group name to be assigned to] [user name]
         |__ assign the user to a new group, but the existing group he belongs to will still valid
         |__ however, the file/directory owned by the user is still owned by the previous group that user belongs to
 
+==========================================
+$                                        $
+$       (L)  Monitor User ACtivity       $
+$                                        $ 
+==========================================
 
 (6) chgrp
 syntax: chgrp -R [the new group that all files/directory currently owned by the user will change to] [user name]
