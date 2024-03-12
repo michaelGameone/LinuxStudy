@@ -75,6 +75,7 @@ the new directory "." which mean the current directory where the command is type
 (4) mkdir
 
 (5) rmdir or rm -r
+    |__ you usually add option "-f" to suppress the prompt during the deletion of directory process. i.e. rm -rf [directory to be deleted]
 
 
 
@@ -224,6 +225,54 @@ chmod 764 fileName
 ==> it will end ups property "-rwxrw-r--"
 
 
+Example 7:
+==> add/change some permission recursively on a directory (i.e. apply the changes to its subdirectories recursively)
+chmod o+w =R myDir
+
+***************************************************
+      Directory permission right
+***************************************************
+(1) Directories has specified the right for the following user identity:
+    (a) the right of the Directories' user owner
+    (b) the right of the Directories' group owner
+    (c) the right of the user who is neither user owner nor belongs to the owner group of the directories.
+    (d) The special right given to user or group through "setfacl" command.
+
+(2) after determine whoch identity (i.e from a to d above) the current user belongs to, the corresponding right will be assigned to that user
+
+(3) The access right of the directory has the following efect:
+    (a) Read (r):  User can view what files/sub-direcotries inside that directory (i.e. command ls)
+                   Without "Read (r)" right, user can't use "ls" command to list out all files/directories inside that directory.    
+    (b) Execute (x): allow user to enter the directory (command "cd")
+	             Without "Execute(x)" right, user can't "cd" into that directories.
+    (c) Write (w): user can create files/sub-directories inside the parent directory. User can also remove the files/sub-directories, or rename a file or directories
+                   Without the "Write (w)" right, user can't "mkdir" a direcoty, "touch" any new files, "rm" any files or directoriesls, "mv" anyl files or directories.
+
+
+The order of identifying a user into which identity he belongs to as follows:
+(1) check if user is the file user owner ==> (2) if not, then check if the user is the users defined in "setfacl" command ==> (3) if not, then check if the user belongs to the owner group ==> (4) if not, then check if the user belongs to the group defined in command "setfacl" ==> (5) if not, then user automatically belongs to "other"
+
+***************************************************
+
+
+***************************************************
+      su, sudo
+***************************************************
+The root account is the superuser who has all the right.
+If you want another user also assigned with the same superuser right, add them into "sudoer" file
+The file is "/etc/sudoers"
+"vi" into it, and add " userName ALL=(ALL) ALL" inside the file
+Or you can type command "visudo", which has the same effect by "vi" into "/etc/sudoers" file
+
+Then that user can now execute the superuser command by preceding it with "sudo" command.
+|__ source: https://www.baeldung.com/linux/username-not-in-sudoers-file
+
+- switch to root account
+  |__ su -
+- switch to other user
+  |__ su - userName
+
+
 (3) Change ownership
 
 command: chown
@@ -240,7 +289,9 @@ chown newUserOwner:newGroupOwner fileName
 chgrp newGroupName fileName
 
 The permission of the directory will override all the files and directories nested inside it.
-
+ 
+If you want to changes the group of a directory and everything nested inside it, you can change the group recursively as follows:
+chgrp -R newGroup targetDirectory
 
 
 (4) Access Control List (ACL)
@@ -250,14 +301,15 @@ apt install acl
 
 
 command: setfacl
-add perssion for a specific user
+add permission for a specific user
 |__ syntax: setfact -m u:[use name]:[access right: rwx] [path of the target file]
 
 add permission for a group
 |__ syntax: setfacl -m g:[group name]:[access right: rwx] [path of the target file]
 
 allow all files or directories to inherit ACL entries from the directory it is within
-|__ syntax: setfacl -Rm "entry" [path of the target directory]
+|__ syntax: setfacl -R -m "entry" [path of the target directory]
+    e.g setfacl -R -m u:michael:rw targetFolderName
 
 
 remove entry
@@ -715,11 +767,123 @@ $       (K) User Management              $
 $                                        $ 
 ==========================================
 
+(1) useradd
+- syntax: useradd [new user name]
+
+example:
+useradd batman
+
+Verify the new user is created:
+- syntax: id [new user name]
+exmaple:
+id batman
+
+Also, if the new user is created, the corresponding folder is also created in home directory
+
+you can specify the new user in details when creating a new account for them as follows:
+- (1) which group he belongs to
+- (2) which bash he will use
+- (3) what description about this user
+- (4) which home directory he is using
+- (5) the name of the new user
+ 
+example:
+useradd -g groupThatnewUserBelongTo -s /bin/bash -c "decription of this new user" -m -d /home/newUserHomeDir newUserName
+
+
+(2) groupadd
+- syntax: groupadd [new group name]
+
+example:
+groupadd devGrp
+
+Verify the group is created:
+cat /etc/group
+
+it will show the list of groups
+
+
+(3) userdel
+syntax1: userdel -r [user to be deleted]
+        |__ it will delete the corresponding user' directories in the "home" directory
+     
+ syntax2: userdel [user to be deleted]
+          |__ the corresponding user's directory is perserved
 
 
 
+(4) groupdel
+syntax: groupdel [group to be deleted]
+
+example:
+groupdel devGrp
 
 
+(5) usermod
+syntax: usermod -G [group name to be assigned to] [user name]
+        |__ assign the user to a new group, but the existing group he belongs to will still valid
+        |__ however, the file/directory owned by the user is still owned by the previous group that user belongs to
+
+
+
+(6) chgrp
+syntax: chgrp -R [the new group that all files/directory currently owned by the user will change to] [user name]
+        |__ example: user "sam" used to belong group "sam". so all the directory/files owned by sam will be also owned by group "sam".
+                     However, after executing the command "chgrp -R devGrp sam", all the files/directories owned by same will now belonged
+                     to group "devGrp"
+
+(7) check the password and the group
+
+(i) where to check the group list:
+    - cat /etc/group
+
+(ii) where to check the user password:
+    - cat /etc/passwd
+    - the output would be something like the following:
+      ==> sam:x:1001:1001::/home/sam:/bin/bash
+      The above corresponds to ==> [user name]:[undisclosed passowrd]:[user id]:[group id]:[user description]:[user home directory path]:[user bash path]
+
+(iii) where to check the encripted user password:
+- cat /etc/shadow
+
+
+(v) set the password for a user
+syntax: passwd [user name]  
+
+(8) id
+    |__ syntax id [user name]
+    - check the information (such as user id, group id) of a particular user.
+   
+
+
+(9) when password is expired
+    |__ command: chage
+    |__ command option:
+        |__ -d: this is the last modified password date. This is defined not by UTC but how many days since 1-1-1970
+        |__ -m: the minumum days between each password changed.
+        |__ -M: maximum day that this password is still valid since its last changed.
+        |__ -W: how many days prior to the password expiry date that should a warning given to user telling him changing the password
+        |__ -I: the number of days after password expireds that account is disabled.
+        |__ -E: The absolute date that this account became disabled no matter it is expired or not. The time is defined as how many days after 1-1-1970
+
+    |__ example: chage -m 7 -M 365 -W 30 -I 1 John
+        |__ it means once its password has changed, it takes at least 7 days to make another change. Also, the password will be expired after 1 year. The notification telling the user to change his/her password will be sent 1 month before it expires. After the password expires, it will take another 1 day to make account completely disable.
+
+
+    The file set the default password age, password length ..etc:
+    |__ /etc/login.defs
+
+ 
+********************************
+   ssh
+******************************
+syntax: ssh userName@hostnameOrIP 
+example: ssh michael@192.168.0.148
+
+|__ source: https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/factoryos/connect-using-ssh?view=windows-11
+
+- command: exit
+  |__ logout from current user
 
 ==========================================
 $                                        $
@@ -738,6 +902,5 @@ $                                        $
 	
 	
 
-
-
+  
 
