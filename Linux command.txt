@@ -723,9 +723,20 @@ $                                        $
 
 ==========================================
 $                                        $
-$       (L)  Monitor User ACtivity       $
+$       (L)  Monitor User Activity       $
 $                                        $ 
 ==========================================
+(1) check how many user currently logged in to the system at any given moment
+    |__ command: who
+
+(2) check the logging history of all time
+    |__ command: last
+
+
+(3) pinky
+    |__ need to install first: yum install finger/pinky -y
+	
+	
 
 
 
